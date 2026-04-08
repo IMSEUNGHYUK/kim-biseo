@@ -1,0 +1,10 @@
+{
+  "buildCommand": "",
+  "outputDirectory": ".",
+  "devCommand": "",
+  "rewrites": [
+    { "source": "/", "destination": "/업무대시보드.html" },
+    { "source": "/대시보드", "destination": "/업무대시보드.html" },
+    { "source": "/dashboard", "destination": "/업무대시보드.html" }
+  ]
+}
