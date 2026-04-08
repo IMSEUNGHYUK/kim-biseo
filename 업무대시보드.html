@@ -389,6 +389,164 @@
       transition: all 0.15s;
     }
     .btn-open-briefing:hover { color: var(--text); border-color: var(--accent); }
+
+    /* ─── MOBILE RESPONSIVE ─── */
+    @media (max-width: 1024px) {
+      .layout { grid-template-columns: 1fr; gap: 0; }
+      .sidebar { border-right: none; border-bottom: 1px solid var(--border); padding: 16px; }
+      .main { padding: 16px; }
+      .topbar { flex-direction: column; gap: 12px; align-items: flex-start; padding: 12px 16px; }
+      .topbar h1 { font-size: 0.95rem; }
+      .topbar-right { width: 100%; display: flex; gap: 10px; flex-wrap: wrap; }
+      .weather-widget { flex: 1; min-width: 200px; }
+      .charts-row { grid-template-columns: 1fr; }
+      .sales-grid { grid-template-columns: repeat(2, 1fr); }
+      .week-grid { grid-template-columns: repeat(7, 1fr); }
+    }
+
+    @media (max-width: 768px) {
+      body { font-size: 13px; }
+      .topbar { padding: 10px 12px; }
+      .topbar h1 { font-size: 0.9rem; }
+      .topbar-right { gap: 8px; flex-wrap: wrap; }
+      .weather-widget { font-size: 0.75rem; padding: 6px 10px; gap: 8px; }
+      .weather-icon { font-size: 1.2rem; }
+      .weather-temp { font-size: 0.9rem; }
+      .weather-desc { font-size: 0.6rem; }
+      .weather-meta { gap: 6px; margin-left: 2px; }
+      .weather-meta span { font-size: 0.6rem; }
+      .date { font-size: 0.75rem; }
+      .btn-open-briefing { padding: 5px 10px; font-size: 0.7rem; }
+
+      .layout { gap: 0; min-height: calc(100vh - 52px); }
+      .sidebar { padding: 12px; gap: 16px; }
+      .main { padding: 12px; gap: 14px; }
+
+      .todo-add { flex-wrap: wrap; gap: 6px; }
+      .todo-add input[type="text"] { width: 100%; }
+      .todo-add input[type="time"] { width: 70px; font-size: 0.75rem; padding: 6px; }
+      .todo-add select { font-size: 0.75rem; padding: 6px; }
+      .todo-add button { padding: 6px 12px; font-size: 0.75rem; }
+      .todo-item { padding: 7px 8px; gap: 8px; }
+      .todo-text { font-size: 0.78rem; }
+      .todo-del, .todo-edit { opacity: 1; font-size: 0.7rem; }
+
+      .card { padding: 14px; }
+      .card-title { font-size: 0.78rem; margin-bottom: 10px; }
+      .sec-label { font-size: 0.65rem; margin-bottom: 8px; }
+
+      .week-grid { gap: 4px; }
+      .day-header { font-size: 0.62rem; }
+      .day-num { font-size: 0.85rem; padding: 4px 0; }
+      .event-chip { font-size: 0.6rem; padding: 2px 4px; }
+
+      .sales-grid { grid-template-columns: repeat(2, 1fr); gap: 8px; }
+      .sales-kpi { padding: 10px 8px; }
+      .sales-kpi .s-label { font-size: 0.6rem; margin-bottom: 3px; }
+      .sales-kpi .s-val { font-size: 1rem; }
+      .sales-kpi .s-sub { font-size: 0.6rem; }
+
+      .meeting-row { gap: 8px; padding: 8px 10px; }
+      .meeting-who { font-size: 0.65rem; min-width: 45px; }
+      .meeting-task { font-size: 0.75rem; }
+      .meeting-due { font-size: 0.65rem; }
+
+      .chart-wrap { height: 150px; }
+      .proj-item { }
+      .proj-name { font-size: 0.78rem; }
+      .proj-pct { font-size: 0.7rem; }
+
+      /* Edit mode adjustments */
+      .todo-item.editing .edit-row { gap: 4px; }
+      .edit-input { padding: 4px 8px; font-size: 0.78rem; }
+      .edit-time { padding: 4px 6px; font-size: 0.72rem; width: 70px; }
+      .btn-save-edit { padding: 4px 10px; font-size: 0.7rem; }
+      .btn-cancel-edit { padding: 4px 8px; font-size: 0.7rem; }
+    }
+
+    @media (max-width: 480px) {
+      body { font-size: 12px; }
+      .topbar { padding: 8px; }
+      .topbar h1 { font-size: 0.85rem; }
+      .topbar-right { gap: 6px; }
+      .weather-widget { padding: 4px 8px; gap: 6px; font-size: 0.7rem; }
+      .weather-icon { font-size: 1.1rem; }
+      .weather-temp { font-size: 0.85rem; }
+      .weather-desc { font-size: 0.55rem; }
+      .weather-meta { display: none; }
+      .date { display: none; }
+      .btn-open-briefing { padding: 4px 8px; font-size: 0.65rem; }
+
+      .layout { gap: 0; min-height: calc(100vh - 48px); }
+      .sidebar { padding: 10px; gap: 14px; }
+      .main { padding: 10px; gap: 12px; }
+
+      .todo-add { gap: 4px; }
+      .todo-add input[type="text"] { font-size: 0.75rem; padding: 6px; }
+      .todo-add input[type="time"] { width: 65px; font-size: 0.7rem; padding: 5px; }
+      .todo-add select { font-size: 0.7rem; padding: 5px; }
+      .todo-add button { padding: 5px 10px; font-size: 0.7rem; }
+      .todo-list { max-height: 250px; gap: 4px; }
+      .todo-item { padding: 6px 6px; gap: 6px; }
+      .prio-dot { width: 5px; height: 5px; }
+      .prio-tag { font-size: 0.6rem; padding: 1px 5px; }
+
+      .card { padding: 10px; border-radius: 8px; }
+      .card-title { font-size: 0.75rem; margin-bottom: 8px; }
+      .sec-label { font-size: 0.6rem; margin-bottom: 6px; }
+
+      .week-grid { gap: 2px; }
+      .day-header { font-size: 0.55rem; padding: 2px 0; }
+      .day-num { font-size: 0.8rem; padding: 3px 0; }
+      .event-chip { font-size: 0.55rem; padding: 1px 3px; }
+
+      .sales-grid { grid-template-columns: 1fr; gap: 6px; }
+      .sales-kpi { padding: 8px; }
+      .sales-kpi .s-label { font-size: 0.55rem; margin-bottom: 2px; }
+      .sales-kpi .s-val { font-size: 0.95rem; }
+      .sales-kpi .s-sub { font-size: 0.55rem; }
+
+      .meeting-row { gap: 6px; padding: 7px 8px; }
+      .meeting-who { font-size: 0.6rem; min-width: 40px; }
+      .meeting-task { font-size: 0.7rem; }
+      .meeting-due { font-size: 0.6rem; }
+
+      .chart-wrap { height: 120px; }
+      .proj-name { font-size: 0.75rem; }
+      .proj-pct { font-size: 0.65rem; }
+      .proj-bar { height: 4px; }
+
+      /* Modal adjustments */
+      .briefing-modal { border-radius: 16px; width: 90vw; }
+      .briefing-header { padding: 20px 16px 16px; }
+      .briefing-greeting { font-size: 0.7rem; margin-bottom: 4px; }
+      .briefing-title { font-size: 1.2rem; }
+      .briefing-date { font-size: 0.75rem; }
+      .briefing-weather { gap: 8px; padding: 8px 10px; margin-top: 10px; }
+      .briefing-weather .bw-icon { font-size: 1.4rem; }
+      .briefing-weather .bw-temp { font-size: 1rem; }
+      .briefing-weather .bw-desc { font-size: 0.7rem; }
+      .briefing-weather .bw-meta { font-size: 0.65rem; }
+      .briefing-body { padding: 14px 16px 16px; gap: 14px; }
+      .b-section-title { font-size: 0.63rem; margin-bottom: 6px; }
+      .b-todo-item { padding: 6px 8px; gap: 6px; }
+      .b-todo-item .b-text { font-size: 0.75rem; }
+      .b-todo-item .b-tag { font-size: 0.6rem; padding: 1px 5px; }
+      .b-sched-item { padding: 6px 8px; gap: 8px; }
+      .b-sched-item .b-time { font-size: 0.65rem; min-width: 35px; }
+      .b-sched-item .b-ev { font-size: 0.75rem; }
+      .b-sched-item .b-evdot { width: 5px; height: 5px; }
+      .briefing-footer { padding: 0 16px 16px; gap: 6px; }
+      .btn-briefing { padding: 8px 16px; font-size: 0.8rem; }
+      .btn-again { padding: 8px 12px; font-size: 0.75rem; }
+
+      /* Edit mode mobile */
+      .todo-item.editing .edit-row { gap: 3px; }
+      .edit-input { padding: 3px 6px; font-size: 0.75rem; }
+      .edit-time { padding: 3px 4px; font-size: 0.65rem; width: 60px; }
+      .btn-save-edit { padding: 3px 8px; font-size: 0.65rem; }
+      .btn-cancel-edit { padding: 3px 6px; font-size: 0.65rem; }
+    }
   </style>
 </head>
 <body>
