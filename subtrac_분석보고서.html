@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SubTrackr 사이트 분석 보고서</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Segoe UI', sans-serif; background: #f5f5f0; color: #2d2d2d; font-size: 14px; }
+
+    header {
+      background: #1c1c1c;
+      color: white;
+      padding: 40px 48px 32px;
+    }
+    .header-top { display: flex; align-items: center; gap: 16px; margin-bottom: 12px; }
+    .site-badge {
+      background: #f97316;
+      color: white;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 4px 12px;
+      border-radius: 20px;
+      letter-spacing: 1px;
+    }
+    header h1 { font-size: 2rem; font-weight: 800; }
+    header .sub { color: #aaa; font-size: 0.9rem; margin-top: 8px; }
+    .header-meta { margin-top: 20px; display: flex; gap: 32px; flex-wrap: wrap; }
+    .header-meta span { color: #ccc; font-size: 0.82rem; }
+    .header-meta strong { color: white; }
+
+    .container { max-width: 1100px; margin: 0 auto; padding: 40px 20px; }
+
+    /* Score cards */
+    .score-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 14px;
+      margin-bottom: 36px;
+    }
+    .score-card {
+      background: white;
+      border-radius: 14px;
+      padding: 20px 16px;
+      text-align: center;
+      box-shadow: 0 2px 10px #0000000a;
+      border-top: 4px solid #e5e5e5;
+    }
+    .score-card.s1 { border-top-color: #6366f1; }
+    .score-card.s2 { border-top-color: #f97316; }
+    .score-card.s3 { border-top-color: #10b981; }
+    .score-card.s4 { border-top-color: #0ea5e9; }
+    .score-card.s5 { border-top-color: #ec4899; }
+    .score-num { font-size: 2.4rem; font-weight: 800; line-height: 1; margin-bottom: 4px; }
+    .score-card.s1 .score-num { color: #6366f1; }
+    .score-card.s2 .score-num { color: #f97316; }
+    .score-card.s3 .score-num { color: #10b981; }
+    .score-card.s4 .score-num { color: #0ea5e9; }
+    .score-card.s5 .score-num { color: #ec4899; }
+    .score-label { font-size: 0.78rem; color: #888; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; }
+    .score-sub { font-size: 0.72rem; color: #bbb; margin-top: 4px; }
+
+    /* Sections */
+    .section { margin-bottom: 28px; }
+    .section-title {
+      font-size: 1rem;
+      font-weight: 700;
+      color: #1c1c1c;
+      margin-bottom: 14px;
+      padding-left: 12px;
+      border-left: 4px solid #f97316;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .card {
+      background: white;
+      border-radius: 14px;
+      padding: 24px;
+      box-shadow: 0 2px 10px #0000000a;
+      margin-bottom: 14px;
+    }
+
+    /* Overview grid */
+    .overview-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    .overview-item { display: flex; flex-direction: column; gap: 4px; }
+    .ov-label { font-size: 0.75rem; color: #999; font-weight: 600; text-transform: uppercase; }
+    .ov-value { font-size: 0.92rem; color: #1c1c1c; font-weight: 500; }
+
+    /* Feature grid */
+    .feature-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; }
+    .feature-item {
+      background: #fafaf8;
+      border: 1px solid #eee;
+      border-radius: 10px;
+      padding: 16px;
+    }
+    .feature-icon { font-size: 1.4rem; margin-bottom: 8px; }
+    .feature-title { font-size: 0.88rem; font-weight: 700; color: #1c1c1c; margin-bottom: 4px; }
+    .feature-desc { font-size: 0.8rem; color: #777; line-height: 1.5; }
+
+    /* Two-col */
+    .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    @media (max-width: 640px) { .two-col, .overview-grid { grid-template-columns: 1fr; } }
+
+    /* Lists */
+    .pros-cons { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    .pros, .cons {
+      border-radius: 10px;
+      padding: 18px;
+    }
+    .pros { background: #f0fdf4; border: 1px solid #bbf7d0; }
+    .cons { background: #fff7ed; border: 1px solid #fed7aa; }
+    .pros h4 { color: #16a34a; font-size: 0.85rem; font-weight: 700; margin-bottom: 10px; }
+    .cons h4 { color: #ea580c; font-size: 0.85rem; font-weight: 700; margin-bottom: 10px; }
+    .pros ul, .cons ul { list-style: none; display: flex; flex-direction: column; gap: 7px; }
+    .pros li::before { content: "✓ "; color: #16a34a; font-weight: bold; }
+    .cons li::before { content: "△ "; color: #ea580c; font-weight: bold; }
+    .pros li, .cons li { font-size: 0.82rem; color: #444; line-height: 1.5; }
+
+    /* SEO table */
+    table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+    th { background: #f5f5f0; padding: 10px 14px; text-align: left; font-weight: 600; color: #555; }
+    td { padding: 10px 14px; border-bottom: 1px solid #f0f0f0; }
+    tr:last-child td { border-bottom: none; }
+    .tag {
+      display: inline-block;
+      padding: 2px 10px;
+      border-radius: 20px;
+      font-size: 0.72rem;
+      font-weight: 600;
+    }
+    .tag.good { background: #dcfce7; color: #16a34a; }
+    .tag.warn { background: #fef9c3; color: #a16207; }
+    .tag.bad { background: #fee2e2; color: #dc2626; }
+
+    /* Chart area */
+    .chart-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    .chart-wrap { position: relative; height: 220px; }
+
+    /* Tech stack */
+    .tech-list { display: flex; flex-wrap: wrap; gap: 8px; }
+    .tech-chip {
+      background: #f0f0f8;
+      border: 1px solid #e0e0f0;
+      color: #4040a0;
+      font-size: 0.78rem;
+      font-weight: 600;
+      padding: 5px 14px;
+      border-radius: 20px;
+    }
+
+    /* Recommendations */
+    .rec-list { display: flex; flex-direction: column; gap: 10px; }
+    .rec-item {
+      display: flex;
+      gap: 14px;
+      align-items: flex-start;
+      padding: 14px 16px;
+      background: #fafaf8;
+      border-radius: 10px;
+      border: 1px solid #eee;
+    }
+    .rec-num {
+      background: #f97316;
+      color: white;
+      font-size: 0.75rem;
+      font-weight: 700;
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .rec-text strong { display: block; font-size: 0.88rem; color: #1c1c1c; margin-bottom: 3px; }
+    .rec-text span { font-size: 0.8rem; color: #777; line-height: 1.5; }
+
+    footer {
+      text-align: center;
+      padding: 24px;
+      font-size: 0.78rem;
+      color: #bbb;
+      border-top: 1px solid #eee;
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="header-top">
+    <span class="site-badge">SITE ANALYSIS</span>
+  </div>
+  <h1>SubTrackr (subtrac.kr) 분석 보고서</h1>
+  <div class="sub">https://www.subtrac.kr &nbsp;|&nbsp; 분석일: 2026-04-01</div>
+  <div class="header-meta">
+    <span><strong>서비스명</strong> SubTrackr (서브트래커)</span>
+    <span><strong>운영사</strong> 주식회사 헬로브이알 (HELLOVR, INC.)</span>
+    <span><strong>대표</strong> 서만호</span>
+    <span><strong>카테고리</strong> 구독 관리 / 핀테크</span>
+    <span><strong>요금</strong> 무료 (광고 기반)</span>
+  </div>
+</header>
+
+<div class="container">
+
+  <!-- Score Cards -->
+  <div class="score-grid">
+    <div class="score-card s1">
+      <div class="score-num">A</div>
+      <div class="score-label">서비스 기획</div>
+      <div class="score-sub">핵심 차별점 명확</div>
+    </div>
+    <div class="score-card s2">
+      <div class="score-num">B+</div>
+      <div class="score-label">UI/UX</div>
+      <div class="score-sub">깔끔하나 랜딩 부재</div>
+    </div>
+    <div class="score-card s3">
+      <div class="score-num">A</div>
+      <div class="score-label">SEO</div>
+      <div class="score-sub">다국어 최적화 우수</div>
+    </div>
+    <div class="score-card s4">
+      <div class="score-num">A-</div>
+      <div class="score-label">기술 스택</div>
+      <div class="score-sub">Next.js + PWA</div>
+    </div>
+    <div class="score-card s5">
+      <div class="score-num">B</div>
+      <div class="score-label">비즈니스 모델</div>
+      <div class="score-sub">무료+광고, 단순 구조</div>
+    </div>
+  </div>
+
+  <!-- 서비스 개요 -->
+  <div class="section">
+    <div class="section-title">서비스 개요</div>
+    <div class="card">
+      <div class="overview-grid">
+        <div class="overview-item"><span class="ov-label">핵심 가치 제안</span><span class="ov-value">은행 연동 없이 AI로 구독을 자동 감지 · 관리</span></div>
+        <div class="overview-item"><span class="ov-label">주요 타겟</span><span class="ov-value">OTT·SaaS 구독 多 이용자, 개인 재무 관리자</span></div>
+        <div class="overview-item"><span class="ov-label">지원 서비스 수</span><span class="ov-value">130+ 글로벌 서비스</span></div>
+        <div class="overview-item"><span class="ov-label">지원 언어</span><span class="ov-value">11개 언어 (한·영·일·중·스·포·독·불·힌·아·베)</span></div>
+        <div class="overview-item"><span class="ov-label">지원 통화</span><span class="ov-value">16개 통화</span></div>
+        <div class="overview-item"><span class="ov-label">데이터 저장 방식</span><span class="ov-value">로컬 기기 저장 (프라이버시 중심)</span></div>
+        <div class="overview-item"><span class="ov-label">평균 평점</span><span class="ov-value">⭐ 4.8 / 5.0 (120 reviews)</span></div>
+        <div class="overview-item"><span class="ov-label">사업자 소재지</span><span class="ov-value">서울시 마포구 누리꿈스퀘어 연구개발타워 6층</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 핵심 기능 -->
+  <div class="section">
+    <div class="section-title">핵심 기능 분석</div>
+    <div class="feature-grid">
+      <div class="feature-item">
+        <div class="feature-icon">🤖</div>
+        <div class="feature-title">AI 자동 감지</div>
+        <div class="feature-desc">영수증·스크린샷 1장만 올리면 AI가 구독 서비스를 자동으로 인식. 수동 입력 불필요.</div>
+      </div>
+      <div class="feature-item">
+        <div class="feature-icon">🔒</div>
+        <div class="feature-title">은행 연동 불필요</div>
+        <div class="feature-desc">기존 구독 관리 앱과 달리 은행 계좌·카드 연동이 필요 없음. 보안 민감 사용자 대상.</div>
+      </div>
+      <div class="feature-item">
+        <div class="feature-icon">📅</div>
+        <div class="feature-title">결제 캘린더</div>
+        <div class="feature-desc">월별 캘린더 뷰로 결제 예정일 시각화. D-day 카운트다운 표시.</div>
+      </div>
+      <div class="feature-item">
+        <div class="feature-icon">💰</div>
+        <div class="feature-title">절약 팁</div>
+        <div class="feature-desc">연간 요금제 전환 시 절약 금액 자동 계산 및 추천.</div>
+      </div>
+      <div class="feature-item">
+        <div class="feature-icon">📊</div>
+        <div class="feature-title">지출 현황 대시보드</div>
+        <div class="feature-desc">월간·연간 구독 지출 합계, 달러 환산 금액 실시간 표시.</div>
+      </div>
+      <div class="feature-item">
+        <div class="feature-icon">💾</div>
+        <div class="feature-title">백업 & 내보내기</div>
+        <div class="feature-desc">JSON/CSV 내보내기, 기존 데이터 합치기·교체 기능 제공.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 차트 영역 -->
+  <div class="section">
+    <div class="section-title">지표 분석</div>
+    <div class="chart-row">
+      <div class="card">
+        <div style="font-size:0.85rem;font-weight:600;color:#444;margin-bottom:14px;">지원 언어 분포 (11개국)</div>
+        <div class="chart-wrap">
+          <canvas id="langChart"></canvas>
+        </div>
+      </div>
+      <div class="card">
+        <div style="font-size:0.85rem;font-weight:600;color:#444;margin-bottom:14px;">빠른 추가 인기 서비스 카테고리</div>
+        <div class="chart-wrap">
+          <canvas id="catChart"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- UI/UX 분석 -->
+  <div class="section">
+    <div class="section-title">UI/UX 분석</div>
+    <div class="two-col">
+      <div class="card">
+        <div style="font-size:0.85rem;font-weight:700;color:#1c1c1c;margin-bottom:12px;">디자인 특성</div>
+        <ul style="list-style:none;display:flex;flex-direction:column;gap:8px;">
+          <li style="font-size:0.82rem;color:#555;">🎨 <strong>컬러:</strong> 베이지/웜 오프화이트 배경 + 오렌지 포인트</li>
+          <li style="font-size:0.82rem;color:#555;">📐 <strong>레이아웃:</strong> 대시보드형 단일 페이지 구성</li>
+          <li style="font-size:0.82rem;color:#555;">🔤 <strong>폰트:</strong> Nunito (가독성 높은 라운드 계열)</li>
+          <li style="font-size:0.82rem;color:#555;">📱 <strong>반응형:</strong> 모바일 대응 (PWA 지원)</li>
+          <li style="font-size:0.82rem;color:#555;">🖥️ <strong>진입점:</strong> 가입·로그인 없이 바로 사용 시작</li>
+        </ul>
+      </div>
+      <div class="card">
+        <div style="font-size:0.85rem;font-weight:700;color:#1c1c1c;margin-bottom:12px;">UX 흐름</div>
+        <ol style="list-style:none;display:flex;flex-direction:column;gap:8px;counter-reset:ux;">
+          <li style="font-size:0.82rem;color:#555;display:flex;gap:10px;align-items:flex-start;">
+            <span style="background:#f97316;color:white;font-size:0.7rem;font-weight:700;padding:2px 8px;border-radius:10px;flex-shrink:0;">1</span>
+            사이트 접속 즉시 대시보드 노출 (가입 불필요)
+          </li>
+          <li style="font-size:0.82rem;color:#555;display:flex;gap:10px;align-items:flex-start;">
+            <span style="background:#f97316;color:white;font-size:0.7rem;font-weight:700;padding:2px 8px;border-radius:10px;flex-shrink:0;">2</span>
+            "AI 감지" 버튼으로 스크린샷 업로드
+          </li>
+          <li style="font-size:0.82rem;color:#555;display:flex;gap:10px;align-items:flex-start;">
+            <span style="background:#f97316;color:white;font-size:0.7rem;font-weight:700;padding:2px 8px;border-radius:10px;flex-shrink:0;">3</span>
+            AI가 자동으로 구독 서비스 목록 생성
+          </li>
+          <li style="font-size:0.82rem;color:#555;display:flex;gap:10px;align-items:flex-start;">
+            <span style="background:#f97316;color:white;font-size:0.7rem;font-weight:700;padding:2px 8px;border-radius:10px;flex-shrink:0;">4</span>
+            월간/연간 지출 대시보드에서 관리
+          </li>
+          <li style="font-size:0.82rem;color:#555;display:flex;gap:10px;align-items:flex-start;">
+            <span style="background:#f97316;color:white;font-size:0.7rem;font-weight:700;padding:2px 8px;border-radius:10px;flex-shrink:0;">5</span>
+            절약 팁 통해 요금제 최적화 유도
+          </li>
+        </ol>
+      </div>
+    </div>
+  </div>
+
+  <!-- SEO 분석 -->
+  <div class="section">
+    <div class="section-title">SEO / 기술 분석</div>
+    <div class="card">
+      <table>
+        <thead><tr><th>항목</th><th>내용</th><th>평가</th></tr></thead>
+        <tbody>
+          <tr><td>타이틀 태그</td><td>SubTrackr - Track Subscriptions Without Bank Login | AI-Powered, Free</td><td><span class="tag good">우수</span></td></tr>
+          <tr><td>메타 디스크립션</td><td>130+ services, 11 languages, 16 currencies. Free. (핵심 차별점 명시)</td><td><span class="tag good">우수</span></td></tr>
+          <tr><td>키워드 커버리지</td><td>한·영·일·중·독·불·스페인어 등 11개 언어 키워드 포함</td><td><span class="tag good">우수</span></td></tr>
+          <tr><td>Schema.org 마크업</td><td>WebApplication 타입, ratingValue 4.8, 다국어 alternateName</td><td><span class="tag good">우수</span></td></tr>
+          <tr><td>hreflang 태그</td><td>11개 언어 alternate 태그 설정</td><td><span class="tag good">우수</span></td></tr>
+          <tr><td>OG / Twitter 카드</td><td>og:image, og:locale:alternate, twitter:card 모두 설정</td><td><span class="tag good">우수</span></td></tr>
+          <tr><td>검색엔진 인증</td><td>Google, Naver 소유권 인증 완료</td><td><span class="tag good">우수</span></td></tr>
+          <tr><td>canonical URL</td><td>https://subtrac.kr 정규화</td><td><span class="tag good">우수</span></td></tr>
+          <tr><td>PWA 지원</td><td>manifest.json, apple-touch-icon 설정</td><td><span class="tag good">우수</span></td></tr>
+          <tr><td>랜딩 페이지 분리</td><td>마케팅 전용 랜딩 페이지 없음 (앱+랜딩 혼합)</td><td><span class="tag warn">보통</span></td></tr>
+          <tr><td>블로그/콘텐츠 마케팅</td><td>별도 블로그·콘텐츠 섹션 미확인</td><td><span class="tag warn">보통</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- 기술 스택 -->
+  <div class="section">
+    <div class="section-title">기술 스택</div>
+    <div class="card">
+      <div class="tech-list">
+        <span class="tech-chip">Next.js (App Router)</span>
+        <span class="tech-chip">React</span>
+        <span class="tech-chip">TypeScript</span>
+        <span class="tech-chip">Nunito Font</span>
+        <span class="tech-chip">PWA (manifest.json)</span>
+        <span class="tech-chip">Google AdSense</span>
+        <span class="tech-chip">Schema.org JSON-LD</span>
+        <span class="tech-chip">Local Storage (기기 저장)</span>
+        <span class="tech-chip">AI OCR (스크린샷 분석)</span>
+        <span class="tech-chip">JSON/CSV 내보내기</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- 강점 / 개선점 -->
+  <div class="section">
+    <div class="section-title">강점 & 개선 기회</div>
+    <div class="card">
+      <div class="pros-cons">
+        <div class="pros">
+          <h4>강점 (Strengths)</h4>
+          <ul>
+            <li>은행 연동 불필요 — 명확한 차별화 포인트</li>
+            <li>가입 없이 즉시 사용 가능 (진입 장벽 최소화)</li>
+            <li>AI 자동 감지로 수동 입력 대비 UX 우위</li>
+            <li>완전 무료 서비스 (광고 기반)</li>
+            <li>11개 언어 지원으로 글로벌 확장성 확보</li>
+            <li>SEO 최적화 수준 높음 (다국어 hreflang)</li>
+            <li>로컬 데이터 저장 — 프라이버시 민감 사용자 친화</li>
+          </ul>
+        </div>
+        <div class="cons">
+          <h4>개선 기회 (Opportunities)</h4>
+          <ul>
+            <li>별도 마케팅 랜딩 페이지 부재 (전환율 최적화 여지)</li>
+            <li>소셜 공유·추천인 기능 없어 바이럴 확산 한계</li>
+            <li>모바일 앱 (iOS/Android) 미확인 — 네이티브 앱 확장 필요</li>
+            <li>콘텐츠 마케팅 (블로그, 절약 팁 콘텐츠) 부재</li>
+            <li>무료+광고 외 프리미엄 플랜 등 수익 다변화 여지</li>
+            <li>사용자 리뷰·커뮤니티 기능 미확인</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 개선 제안 -->
+  <div class="section">
+    <div class="section-title">개선 제안</div>
+    <div class="card">
+      <div class="rec-list">
+        <div class="rec-item">
+          <div class="rec-num">1</div>
+          <div class="rec-text">
+            <strong>마케팅 랜딩 페이지 분리</strong>
+            <span>현재 앱과 랜딩이 혼합된 구조. "은행 연동 불필요" 핵심 메시지를 강조한 별도 마케팅 페이지로 전환율을 높일 수 있음.</span>
+          </div>
+        </div>
+        <div class="rec-item">
+          <div class="rec-num">2</div>
+          <div class="rec-text">
+            <strong>모바일 앱 출시 (iOS / Android)</strong>
+            <span>구독 관리는 모바일 사용 빈도가 높은 영역. 스크린샷 업로드도 모바일에서 더 자연스러움. 앱 출시로 리텐션 강화 가능.</span>
+          </div>
+        </div>
+        <div class="rec-item">
+          <div class="rec-num">3</div>
+          <div class="rec-text">
+            <strong>콘텐츠 마케팅 강화</strong>
+            <span>"구독 절약 팁", "OTT 요금 비교" 등 SEO 친화적 블로그 콘텐츠로 자연 유입 트래픽을 확보할 수 있음.</span>
+          </div>
+        </div>
+        <div class="rec-item">
+          <div class="rec-num">4</div>
+          <div class="rec-text">
+            <strong>프리미엄 플랜 도입</strong>
+            <span>무료+광고 외에 광고 제거, 다기기 동기화, 지출 리포트 등 프리미엄 기능으로 수익 다변화. 구독 관리 앱 특성상 유료 전환 거부감 낮음.</span>
+          </div>
+        </div>
+        <div class="rec-item">
+          <div class="rec-num">5</div>
+          <div class="rec-text">
+            <strong>소셜 공유 & 추천인 기능</strong>
+            <span>"내 구독 현황 공유하기" 기능으로 SNS 바이럴 유도. 추천인 프로그램으로 유기적 사용자 확보.</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<footer>
+  분석일: 2026-04-01 &nbsp;|&nbsp; 대상 URL: https://www.subtrac.kr &nbsp;|&nbsp; Claude Code 자동 생성 보고서
+</footer>
+
+<script>
+  // 지원 언어 차트
+  new Chart(document.getElementById('langChart'), {
+    type: 'doughnut',
+    data: {
+      labels: ['한국어', '영어', '일본어', '중국어', '스페인어', '포르투갈어', '독일어', '프랑스어', '힌디어', '아랍어', '베트남어'],
+      datasets: [{
+        data: [1,1,1,1,1,1,1,1,1,1,1],
+        backgroundColor: ['#6366f1','#f97316','#10b981','#0ea5e9','#ec4899','#f59e0b','#8b5cf6','#14b8a6','#ef4444','#84cc16','#06b6d4'],
+        borderWidth: 0,
+        hoverOffset: 6
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      cutout: '55%',
+      plugins: {
+        legend: { position: 'right', labels: { font: { size: 10 }, boxWidth: 10 } }
+      }
+    }
+  });
+
+  // 서비스 카테고리 차트
+  new Chart(document.getElementById('catChart'), {
+    type: 'bar',
+    data: {
+      labels: ['엔터테인먼트', '음악', 'AI/도구', '클라우드', '생산성', '쇼핑'],
+      datasets: [{
+        label: '지원 서비스 수 (추정)',
+        data: [42, 18, 25, 20, 15, 20],
+        backgroundColor: ['#6366f1','#f97316','#10b981','#0ea5e9','#ec4899','#f59e0b'],
+        borderRadius: 6,
+        borderSkipped: false,
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
+      scales: {
+        y: { grid: { color: '#f0f0f0' }, ticks: { font: { size: 10 } } },
+        x: { grid: { display: false }, ticks: { font: { size: 10 } } }
+      }
+    }
+  });
+</script>
+</body>
+</html>

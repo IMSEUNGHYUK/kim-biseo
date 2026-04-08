@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>매출 분석 보고서</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Segoe UI', sans-serif; background: #f4f6f9; color: #333; }
+
+    header {
+      background: linear-gradient(135deg, #1a237e, #283593);
+      color: white;
+      padding: 36px 40px;
+    }
+    header h1 { font-size: 1.8rem; font-weight: 700; }
+    header p { margin-top: 6px; font-size: 0.95rem; opacity: 0.8; }
+
+    .container { max-width: 1100px; margin: 0 auto; padding: 32px 20px; }
+
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px;
+      margin-bottom: 32px;
+    }
+    .kpi-card {
+      background: white;
+      border-radius: 12px;
+      padding: 24px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+      border-left: 5px solid #3949ab;
+    }
+    .kpi-card .label { font-size: 0.82rem; color: #888; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.05em; }
+    .kpi-card .value { font-size: 1.6rem; font-weight: 700; color: #1a237e; }
+    .kpi-card .sub { font-size: 0.82rem; color: #aaa; margin-top: 4px; }
+
+    .charts-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(460px, 1fr));
+      gap: 24px;
+      margin-bottom: 32px;
+    }
+    .chart-card {
+      background: white;
+      border-radius: 12px;
+      padding: 28px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+    }
+    .chart-card h2 {
+      font-size: 1rem;
+      font-weight: 600;
+      color: #333;
+      margin-bottom: 20px;
+      padding-bottom: 12px;
+      border-bottom: 2px solid #e8eaf6;
+    }
+    .chart-wrap { position: relative; height: 260px; }
+
+    .table-card {
+      background: white;
+      border-radius: 12px;
+      padding: 28px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+      margin-bottom: 32px;
+    }
+    .table-card h2 {
+      font-size: 1rem;
+      font-weight: 600;
+      color: #333;
+      margin-bottom: 20px;
+      padding-bottom: 12px;
+      border-bottom: 2px solid #e8eaf6;
+    }
+    table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+    thead tr { background: #e8eaf6; }
+    th { padding: 12px 16px; text-align: left; font-weight: 600; color: #3949ab; }
+    td { padding: 11px 16px; border-bottom: 1px solid #f0f0f0; }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: #f8f9ff; }
+    .bar { background: #e8eaf6; border-radius: 4px; height: 8px; }
+    .bar-fill { background: #3949ab; border-radius: 4px; height: 8px; }
+
+    .insight-card {
+      background: white;
+      border-radius: 12px;
+      padding: 28px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+    }
+    .insight-card h2 {
+      font-size: 1rem;
+      font-weight: 600;
+      color: #333;
+      margin-bottom: 16px;
+      padding-bottom: 12px;
+      border-bottom: 2px solid #e8eaf6;
+    }
+    .insight-list { list-style: none; }
+    .insight-list li {
+      padding: 10px 0;
+      border-bottom: 1px solid #f5f5f5;
+      font-size: 0.92rem;
+      line-height: 1.6;
+    }
+    .insight-list li:last-child { border-bottom: none; }
+    .insight-list li::before { content: "▸ "; color: #3949ab; font-weight: bold; }
+
+    footer {
+      text-align: center;
+      padding: 24px;
+      font-size: 0.82rem;
+      color: #bbb;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>매출 분석 보고서</h1>
+  <p>분석 기간: 2026-01-05 ~ 2026-02-10 &nbsp;|&nbsp; 총 30건 거래</p>
+</header>
+
+<div class="container">
+
+  <!-- KPI Cards -->
+  <div class="kpi-grid">
+    <div class="kpi-card">
+      <div class="label">총 매출액</div>
+      <div class="value">7,100만원</div>
+      <div class="sub">71,006,000원</div>
+    </div>
+    <div class="kpi-card" style="border-left-color:#00897b;">
+      <div class="label">거래 건수</div>
+      <div class="value">30건</div>
+      <div class="sub">평균 236만원/건</div>
+    </div>
+    <div class="kpi-card" style="border-left-color:#f57c00;">
+      <div class="label">최고 매출 제품</div>
+      <div class="value">무선 이어폰</div>
+      <div class="sub">28,836,000원 (40.6%)</div>
+    </div>
+    <div class="kpi-card" style="border-left-color:#c62828;">
+      <div class="label">최고 매출 지역</div>
+      <div class="value">서울</div>
+      <div class="sub">41,277,000원 (58.1%)</div>
+    </div>
+  </div>
+
+  <!-- Charts Row 1 -->
+  <div class="charts-grid">
+    <div class="chart-card">
+      <h2>제품별 매출액</h2>
+      <div class="chart-wrap">
+        <canvas id="productChart"></canvas>
+      </div>
+    </div>
+    <div class="chart-card">
+      <h2>지역별 매출 비중</h2>
+      <div class="chart-wrap">
+        <canvas id="regionChart"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <!-- Charts Row 2 -->
+  <div class="charts-grid">
+    <div class="chart-card">
+      <h2>카테고리별 매출 비중</h2>
+      <div class="chart-wrap">
+        <canvas id="categoryChart"></canvas>
+      </div>
+    </div>
+    <div class="chart-card">
+      <h2>날짜별 매출 추이</h2>
+      <div class="chart-wrap">
+        <canvas id="trendChart"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <!-- Table -->
+  <div class="table-card">
+    <h2>제품별 상세 현황</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>제품</th>
+          <th>카테고리</th>
+          <th>총 수량</th>
+          <th>매출액</th>
+          <th>비중</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>무선 이어폰</td><td>전자기기</td><td>324개</td><td>28,836,000원</td><td>40.6%</td>
+          <td><div class="bar"><div class="bar-fill" style="width:100%"></div></div></td>
+        </tr>
+        <tr>
+          <td>텀블러</td><td>생활용품</td><td>461개</td><td>11,525,000원</td><td>16.2%</td>
+          <td><div class="bar"><div class="bar-fill" style="width:40%"></div></div></td>
+        </tr>
+        <tr>
+          <td>블루투스 스피커</td><td>전자기기</td><td>80개</td><td>9,600,000원</td><td>13.5%</td>
+          <td><div class="bar"><div class="bar-fill" style="width:33%"></div></div></td>
+        </tr>
+        <tr>
+          <td>보조배터리</td><td>전자기기</td><td>258개</td><td>9,030,000원</td><td>12.7%</td>
+          <td><div class="bar"><div class="bar-fill" style="width:31%"></div></div></td>
+        </tr>
+        <tr>
+          <td>에코백</td><td>생활용품</td><td>411개</td><td>6,165,000원</td><td>8.7%</td>
+          <td><div class="bar"><div class="bar-fill" style="width:21%"></div></div></td>
+        </tr>
+        <tr>
+          <td>무선 충전기</td><td>전자기기</td><td>130개</td><td>5,850,000원</td><td>8.2%</td>
+          <td><div class="bar"><div class="bar-fill" style="width:20%"></div></div></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Insights -->
+  <div class="insight-card">
+    <h2>주요 인사이트</h2>
+    <ul class="insight-list">
+      <li>무선 이어폰이 전체 매출의 <strong>40.6%</strong>를 차지하는 핵심 제품 — 재고 및 마케팅 우선 집중 필요</li>
+      <li>텀블러는 수량 기준 1위(461개)이나 단가가 낮아 매출 비중은 16.2% — 단가 인상 또는 고마진 묶음 판매 검토 가능</li>
+      <li>서울 매출 집중도 58.1% — 부산(19.5%), 대구(22.4%) 지역 마케팅 강화 여지 있음</li>
+      <li>2월 일평균 매출(약 245만원/일)이 1월(약 177만원/일) 대비 <strong>+38%</strong> 성장세 확인</li>
+      <li>전자기기 카테고리가 매출의 75.1% 차지 — 생활용품 라인업 확대 또는 고단가 신제품 추가 고려</li>
+    </ul>
+  </div>
+
+</div>
+
+<footer>생성일: 2026-04-01 &nbsp;|&nbsp; Claude Code 자동 생성 보고서</footer>
+
+<script>
+  const colors = ['#3949ab','#00897b','#f57c00','#8e24aa','#c62828','#039be5'];
+  const lightColors = ['#e8eaf6','#e0f2f1','#fff3e0','#f3e5f5','#ffebee','#e1f5fe'];
+
+  // 제품별 매출 (가로 막대)
+  new Chart(document.getElementById('productChart'), {
+    type: 'bar',
+    data: {
+      labels: ['무선 이어폰','텀블러','블루투스 스피커','보조배터리','에코백','무선 충전기'],
+      datasets: [{
+        label: '매출액 (원)',
+        data: [28836000, 11525000, 9600000, 9030000, 6165000, 5850000],
+        backgroundColor: colors,
+        borderRadius: 6,
+      }]
+    },
+    options: {
+      indexAxis: 'y',
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
+      scales: {
+        x: {
+          ticks: { callback: v => (v/10000).toLocaleString() + '만' },
+          grid: { color: '#f0f0f0' }
+        },
+        y: { grid: { display: false } }
+      }
+    }
+  });
+
+  // 지역별 도넛
+  new Chart(document.getElementById('regionChart'), {
+    type: 'doughnut',
+    data: {
+      labels: ['서울', '대구', '부산'],
+      datasets: [{
+        data: [41277000, 15907000, 13822000],
+        backgroundColor: ['#3949ab','#f57c00','#00897b'],
+        borderWidth: 0,
+        hoverOffset: 8
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { position: 'bottom' },
+        tooltip: { callbacks: { label: ctx => ` ${ctx.label}: ${(ctx.raw/10000).toLocaleString()}만원` } }
+      },
+      cutout: '60%'
+    }
+  });
+
+  // 카테고리별 파이
+  new Chart(document.getElementById('categoryChart'), {
+    type: 'pie',
+    data: {
+      labels: ['전자기기', '생활용품'],
+      datasets: [{
+        data: [53316000, 17690000],
+        backgroundColor: ['#3949ab','#00897b'],
+        borderWidth: 0,
+        hoverOffset: 8
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { position: 'bottom' },
+        tooltip: { callbacks: { label: ctx => ` ${ctx.label}: ${(ctx.raw/10000).toLocaleString()}만원` } }
+      }
+    }
+  });
+
+  // 날짜별 매출 추이
+  new Chart(document.getElementById('trendChart'), {
+    type: 'line',
+    data: {
+      labels: ['1/5','1/8','1/12','1/15','1/19','1/22','1/26','2/1','2/5','2/10'],
+      datasets: [{
+        label: '일별 매출액',
+        data: [7075000, 8413000, 4135000, 8122000, 5060000, 9029000, 4665000, 10110000, 6195000, 8202000],
+        borderColor: '#3949ab',
+        backgroundColor: 'rgba(57,73,171,0.08)',
+        tension: 0.4,
+        fill: true,
+        pointBackgroundColor: '#3949ab',
+        pointRadius: 5,
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
+      scales: {
+        y: {
+          ticks: { callback: v => (v/10000).toLocaleString() + '만' },
+          grid: { color: '#f0f0f0' }
+        },
+        x: { grid: { display: false } }
+      }
+    }
+  });
+</script>
+</body>
+</html>

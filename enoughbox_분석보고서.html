@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>이너프(enough) 사이트 분석 보고서</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Segoe UI', sans-serif; background: #faf9f7; color: #1a1a1a; font-size: 14px; }
+
+    header {
+      background: #1a1a1a;
+      color: white;
+      padding: 40px 48px 32px;
+    }
+    .badge { background: #e8c5a0; color: #1a1a1a; font-size: 11px; font-weight: 700; padding: 4px 12px; border-radius: 20px; letter-spacing: 1px; display: inline-block; margin-bottom: 12px; }
+    header h1 { font-size: 2rem; font-weight: 800; letter-spacing: -0.5px; }
+    header .sub { color: #999; font-size: 0.88rem; margin-top: 6px; }
+    .header-meta { margin-top: 20px; display: flex; gap: 32px; flex-wrap: wrap; }
+    .header-meta span { color: #bbb; font-size: 0.82rem; }
+    .header-meta strong { color: white; }
+
+    .container { max-width: 1100px; margin: 0 auto; padding: 40px 20px; }
+
+    /* KPI */
+    .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(175px, 1fr)); gap: 14px; margin-bottom: 32px; }
+    .kpi-card { background: white; border-radius: 14px; padding: 22px 18px; box-shadow: 0 2px 12px #00000009; border-top: 4px solid #e5e5e5; text-align: center; }
+    .kpi-card.k1 { border-top-color: #1a1a1a; }
+    .kpi-card.k2 { border-top-color: #e8a87c; }
+    .kpi-card.k3 { border-top-color: #7cb87c; }
+    .kpi-card.k4 { border-top-color: #7c9cb8; }
+    .kpi-card.k5 { border-top-color: #b87cb8; }
+    .kpi-num { font-size: 2.2rem; font-weight: 800; line-height: 1; margin-bottom: 4px; }
+    .kpi-card.k1 .kpi-num { color: #1a1a1a; }
+    .kpi-card.k2 .kpi-num { color: #c97a40; }
+    .kpi-card.k3 .kpi-num { color: #3a8a3a; }
+    .kpi-card.k4 .kpi-num { color: #3a6a8a; }
+    .kpi-card.k5 .kpi-num { color: #8a3a8a; }
+    .kpi-label { font-size: 0.75rem; color: #888; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; }
+    .kpi-sub { font-size: 0.7rem; color: #bbb; margin-top: 3px; }
+
+    /* Section */
+    .section { margin-bottom: 28px; }
+    .section-title { font-size: 1rem; font-weight: 700; color: #1a1a1a; margin-bottom: 14px; padding-left: 12px; border-left: 4px solid #1a1a1a; }
+    .card { background: white; border-radius: 14px; padding: 24px; box-shadow: 0 2px 12px #00000009; margin-bottom: 14px; }
+
+    /* Overview */
+    .overview-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .ov-item { display: flex; flex-direction: column; gap: 3px; }
+    .ov-label { font-size: 0.73rem; color: #999; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; }
+    .ov-value { font-size: 0.9rem; color: #1a1a1a; font-weight: 500; }
+
+    /* Stats highlight */
+    .stat-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    .stat-box { background: #1a1a1a; color: white; border-radius: 14px; padding: 24px; text-align: center; }
+    .stat-box .num { font-size: 2rem; font-weight: 800; color: #e8c5a0; line-height: 1; margin-bottom: 6px; }
+    .stat-box .desc { font-size: 0.8rem; color: #aaa; }
+
+    /* Product grid */
+    .product-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; }
+    .product-item { background: #faf9f7; border: 1px solid #eee; border-radius: 10px; padding: 16px; }
+    .product-stage { font-size: 0.7rem; font-weight: 700; color: #e8a87c; text-transform: uppercase; margin-bottom: 6px; letter-spacing: 0.05em; }
+    .product-name { font-size: 0.85rem; font-weight: 700; color: #1a1a1a; margin-bottom: 8px; line-height: 1.4; }
+    .product-price { display: flex; align-items: center; gap: 8px; }
+    .price-orig { font-size: 0.75rem; color: #bbb; text-decoration: line-through; }
+    .price-disc { font-size: 0.9rem; font-weight: 700; color: #1a1a1a; }
+    .disc-badge { background: #1a1a1a; color: white; font-size: 0.68rem; font-weight: 700; padding: 2px 6px; border-radius: 4px; }
+
+    /* Two col */
+    .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    @media (max-width: 640px) { .two-col, .overview-grid, .stat-row { grid-template-columns: 1fr; } }
+
+    /* Pros/Cons */
+    .pros { background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 10px; padding: 18px; }
+    .cons { background: #fff8f0; border: 1px solid #fde8c8; border-radius: 10px; padding: 18px; }
+    .pros h4 { color: #16a34a; font-size: 0.85rem; font-weight: 700; margin-bottom: 10px; }
+    .cons h4 { color: #c97a40; font-size: 0.85rem; font-weight: 700; margin-bottom: 10px; }
+    .pros ul, .cons ul { list-style: none; display: flex; flex-direction: column; gap: 7px; }
+    .pros li::before { content: "✓ "; color: #16a34a; font-weight: bold; }
+    .cons li::before { content: "△ "; color: #c97a40; font-weight: bold; }
+    .pros li, .cons li { font-size: 0.82rem; color: #444; line-height: 1.5; }
+
+    /* Table */
+    table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+    th { background: #f5f4f1; padding: 10px 14px; text-align: left; font-weight: 600; color: #555; }
+    td { padding: 10px 14px; border-bottom: 1px solid #f0f0f0; }
+    tr:last-child td { border-bottom: none; }
+    .tag { display: inline-block; padding: 2px 10px; border-radius: 20px; font-size: 0.72rem; font-weight: 600; }
+    .tag.good { background: #dcfce7; color: #16a34a; }
+    .tag.warn { background: #fef9c3; color: #a16207; }
+    .tag.bad { background: #fee2e2; color: #dc2626; }
+
+    /* Chart */
+    .chart-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    .chart-wrap { position: relative; height: 230px; }
+
+    /* Recommendations */
+    .rec-list { display: flex; flex-direction: column; gap: 10px; }
+    .rec-item { display: flex; gap: 14px; align-items: flex-start; padding: 14px 16px; background: #faf9f7; border-radius: 10px; border: 1px solid #eee; }
+    .rec-num { background: #1a1a1a; color: white; font-size: 0.75rem; font-weight: 700; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .rec-text strong { display: block; font-size: 0.88rem; color: #1a1a1a; margin-bottom: 3px; }
+    .rec-text span { font-size: 0.8rem; color: #777; line-height: 1.5; }
+
+    /* Review quote */
+    .review-box { background: #f5f4f1; border-left: 4px solid #e8a87c; border-radius: 0 10px 10px 0; padding: 16px 20px; font-size: 0.85rem; color: #555; line-height: 1.7; font-style: italic; }
+
+    footer { text-align: center; padding: 24px; font-size: 0.78rem; color: #bbb; border-top: 1px solid #eee; margin-top: 20px; }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="badge">SITE ANALYSIS</div>
+  <h1>이너프 (enough®) 분석 보고서</h1>
+  <div class="sub">https://enoughbox.shop &nbsp;|&nbsp; 분석일: 2026-04-01</div>
+  <div class="header-meta">
+    <span><strong>브랜드</strong> enough® (이너프)</span>
+    <span><strong>슬로건</strong> 엄마의 시간은 소중하니까</span>
+    <span><strong>카테고리</strong> 영유아 이유식 밀키트 D2C</span>
+    <span><strong>타겟</strong> 5~11개월 영아 보호자 (주로 엄마)</span>
+    <span><strong>채널</strong> 카카오채널 운영</span>
+  </div>
+</header>
+
+<div class="container">
+
+  <!-- KPI -->
+  <div class="kpi-grid">
+    <div class="kpi-card k1"><div class="kpi-num">A</div><div class="kpi-label">브랜드 기획</div><div class="kpi-sub">차별화 포지셔닝 탁월</div></div>
+    <div class="kpi-card k2"><div class="kpi-num">A</div><div class="kpi-label">UI/UX</div><div class="kpi-sub">프리미엄 감성 디자인</div></div>
+    <div class="kpi-card k3"><div class="kpi-num">B+</div><div class="kpi-label">상품 구성</div><div class="kpi-sub">단계별 체계화 우수</div></div>
+    <div class="kpi-card k4"><div class="kpi-num">B+</div><div class="kpi-label">마케팅</div><div class="kpi-sub">커뮤니티·SNS 활용</div></div>
+    <div class="kpi-card k5"><div class="kpi-num">B</div><div class="kpi-label">SEO/기술</div><div class="kpi-sub">기본 최적화 수준</div></div>
+  </div>
+
+  <!-- 핵심 수치 -->
+  <div class="section">
+    <div class="section-title">핵심 성과 수치</div>
+    <div class="stat-row">
+      <div class="stat-box">
+        <div class="num">1,504,529끼니</div>
+        <div class="desc">누적 판매량 — 브랜드 신뢰도의 핵심 지표로 메인 노출</div>
+      </div>
+      <div class="stat-box">
+        <div class="num">41,569,185분</div>
+        <div class="desc">절약된 엄마의 시간 — 핵심 가치(시간 절약)를 수치로 설득</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 서비스 개요 -->
+  <div class="section">
+    <div class="section-title">서비스 개요</div>
+    <div class="card">
+      <div class="overview-grid">
+        <div class="ov-item"><span class="ov-label">핵심 가치 제안</span><span class="ov-value">엄마의 조리 시간을 줄여주는 단계별 이유식 밀키트</span></div>
+        <div class="ov-item"><span class="ov-label">주요 타겟</span><span class="ov-value">5~11개월 영아를 둔 엄마 (초보 육아맘)</span></div>
+        <div class="ov-item"><span class="ov-label">상품 형태</span><span class="ov-value">냉동 밀키트 (5팩 단위, 10~15끼니 구성)</span></div>
+        <div class="ov-item"><span class="ov-label">주요 식재료</span><span class="ov-value">무항생제 한우, 유기농·프리미엄 식재료</span></div>
+        <div class="ov-item"><span class="ov-label">단계 구성</span><span class="ov-value">초기(5-6개월) → 중기(7-8개월) → 후기(9-11개월)</span></div>
+        <div class="ov-item"><span class="ov-label">AI 기능</span><span class="ov-value">AI 개인화 상품 추천 ("AI가 찾은 고객님만을 위한 상품")</span></div>
+        <div class="ov-item"><span class="ov-label">커뮤니티</span><span class="ov-value">COMMUNITY 메뉴, Instagram 연동, 카카오채널</span></div>
+        <div class="ov-item"><span class="ov-label">프로모션</span><span class="ov-value">카카오채널 3,000원 쿠폰 / 17~25% 할인 패키지</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 상품 라인업 -->
+  <div class="section">
+    <div class="section-title">주요 상품 라인업</div>
+    <div class="product-grid">
+      <div class="product-item">
+        <div class="product-stage">단품 토핑</div>
+        <div class="product-name">무항생제 한우 다짐육 토핑 1·2단계 180g</div>
+        <div class="product-price"><span class="price-disc">₩19,500</span></div>
+      </div>
+      <div class="product-item">
+        <div class="product-stage">초기 1단계 · 5-6개월</div>
+        <div class="product-name">이너프 초기 미음 밀키트 (5팩/10끼니)</div>
+        <div class="product-price">
+          <span class="disc-badge">25%</span>
+          <span class="price-orig">₩39,500</span>
+          <span class="price-disc">₩29,500</span>
+        </div>
+      </div>
+      <div class="product-item">
+        <div class="product-stage">중기 2단계 · 7-8개월</div>
+        <div class="product-name">이너프 중기 무른죽 밀키트 (5팩/15끼니)</div>
+        <div class="product-price">
+          <span class="disc-badge">20%</span>
+          <span class="price-orig">₩51,200</span>
+          <span class="price-disc">₩41,200</span>
+        </div>
+      </div>
+      <div class="product-item">
+        <div class="product-stage">후기 4단계 · 9-11개월</div>
+        <div class="product-name">이너프 후기2 무른밥 밀키트 (5팩/15끼니)</div>
+        <div class="product-price">
+          <span class="disc-badge">17%</span>
+          <span class="price-orig">₩59,200</span>
+          <span class="price-disc">₩49,200</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 차트 -->
+  <div class="section">
+    <div class="section-title">가격 & 구성 분석</div>
+    <div class="chart-row">
+      <div class="card">
+        <div style="font-size:0.85rem;font-weight:600;color:#444;margin-bottom:14px;">단계별 판매가 및 할인율</div>
+        <div class="chart-wrap"><canvas id="priceChart"></canvas></div>
+      </div>
+      <div class="card">
+        <div style="font-size:0.85rem;font-weight:600;color:#444;margin-bottom:14px;">끼니당 단가 (원가 효율성)</div>
+        <div class="chart-wrap"><canvas id="unitChart"></canvas></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- UI/UX 분석 -->
+  <div class="section">
+    <div class="section-title">브랜드 & UI/UX 분석</div>
+    <div class="two-col">
+      <div class="card">
+        <div style="font-size:0.85rem;font-weight:700;color:#1a1a1a;margin-bottom:12px;">디자인 특성</div>
+        <ul style="list-style:none;display:flex;flex-direction:column;gap:9px;">
+          <li style="font-size:0.82rem;color:#555;">🎨 <strong>컬러:</strong> 블랙 + 베이지/크림 — 프리미엄·모던 감성</li>
+          <li style="font-size:0.82rem;color:#555;">📐 <strong>레이아웃:</strong> 풀스크린 히어로 + 그리드 상품 리스트</li>
+          <li style="font-size:0.82rem;color:#555;">✍️ <strong>카피:</strong> "엄마의 시간은 소중하니까" — 감성 소구 강함</li>
+          <li style="font-size:0.82rem;color:#555;">📸 <strong>사진:</strong> 고품질 푸드 스타일링 이미지 일관성 우수</li>
+          <li style="font-size:0.82rem;color:#555;">🔤 <strong>타이포:</strong> 영문 브랜드 + 한글 감성 조화</li>
+          <li style="font-size:0.82rem;color:#555;">📢 <strong>마키:</strong> "MOTHER'S TIME IS PRECIOUS." 롤링 띠 강조</li>
+        </ul>
+      </div>
+      <div class="card">
+        <div style="font-size:0.85rem;font-weight:700;color:#1a1a1a;margin-bottom:12px;">고객 경험 흐름</div>
+        <ol style="list-style:none;display:flex;flex-direction:column;gap:8px;">
+          <li style="font-size:0.82rem;color:#555;display:flex;gap:10px;align-items:flex-start;"><span style="background:#1a1a1a;color:white;font-size:0.7rem;font-weight:700;padding:2px 8px;border-radius:10px;flex-shrink:0;">1</span>브랜드 슬로건·수치로 신뢰 형성 (히어로 섹션)</li>
+          <li style="font-size:0.82rem;color:#555;display:flex;gap:10px;align-items:flex-start;"><span style="background:#1a1a1a;color:white;font-size:0.7rem;font-weight:700;padding:2px 8px;border-radius:10px;flex-shrink:0;">2</span>AI 추천으로 개인화 상품 노출</li>
+          <li style="font-size:0.82rem;color:#555;display:flex;gap:10px;align-items:flex-start;"><span style="background:#1a1a1a;color:white;font-size:0.7rem;font-weight:700;padding:2px 8px;border-radius:10px;flex-shrink:0;">3</span>단계별 상품으로 구매 결정 유도</li>
+          <li style="font-size:0.82rem;color:#555;display:flex;gap:10px;align-items:flex-start;"><span style="background:#1a1a1a;color:white;font-size:0.7rem;font-weight:700;padding:2px 8px;border-radius:10px;flex-shrink:0;">4</span>리뷰·커뮤니티로 사회적 증거 강화</li>
+          <li style="font-size:0.82rem;color:#555;display:flex;gap:10px;align-items:flex-start;"><span style="background:#1a1a1a;color:white;font-size:0.7rem;font-weight:700;padding:2px 8px;border-radius:10px;flex-shrink:0;">5</span>카카오채널 쿠폰으로 재방문·구매 전환</li>
+        </ol>
+      </div>
+    </div>
+  </div>
+
+  <!-- 실제 리뷰 인용 -->
+  <div class="section">
+    <div class="section-title">실제 고객 리뷰 (사이트 수집)</div>
+    <div class="card">
+      <div class="review-box">
+        "두번째 주문입니다. 처음 주문했을 때 아이가 알러지 반응이 와서 중단했는데, 다시 이너프로 돌아왔네요. 재료도 확인할 수 있고 무엇보다 아기가 참 잘 먹네요. 아토피나 알러지 반응이 잘 일어나는 아이들을 위한 식단도 있으면 좋겠다는 생각이 들었습니다."
+      </div>
+      <div style="margin-top:12px;font-size:0.8rem;color:#888;">→ 재구매 고객 존재 확인 / 알러지 아동 전용 라인 수요 시사</div>
+    </div>
+  </div>
+
+  <!-- SEO 분석 -->
+  <div class="section">
+    <div class="section-title">SEO / 기술 분석</div>
+    <div class="card">
+      <table>
+        <thead><tr><th>항목</th><th>내용</th><th>평가</th></tr></thead>
+        <tbody>
+          <tr><td>타이틀 태그</td><td>이너프 - 엄마의 시간은 소중하니까</td><td><span class="tag warn">보통</span></td></tr>
+          <tr><td>브랜드 포지셔닝</td><td>감성 슬로건 중심 — 검색 키워드(이유식, 밀키트) 미포함</td><td><span class="tag warn">보통</span></td></tr>
+          <tr><td>상품명 SEO</td><td>단계·월령 포함 (초기 1단계 5-6개월) — 검색 노출 유리</td><td><span class="tag good">우수</span></td></tr>
+          <tr><td>커뮤니티 섹션</td><td>NOTICE, EVENT, Instagram 아카이브 — 콘텐츠 SEO 기여</td><td><span class="tag good">우수</span></td></tr>
+          <tr><td>리뷰 시스템</td><td>REVIEW 전용 메뉴 운영 — UGC 콘텐츠 축적</td><td><span class="tag good">우수</span></td></tr>
+          <tr><td>카카오채널</td><td>상단 배너로 즉시 노출, 쿠폰 제공으로 팔로우 유도</td><td><span class="tag good">우수</span></td></tr>
+          <tr><td>AI 추천</td><td>홈 메인에 AI 개인화 추천 섹션 배치</td><td><span class="tag good">우수</span></td></tr>
+          <tr><td>메타 디스크립션</td><td>별도 검색 최적화 설명 미확인</td><td><span class="tag warn">보통</span></td></tr>
+          <tr><td>블로그/육아 콘텐츠</td><td>콘텐츠 마케팅 섹션 미확인</td><td><span class="tag warn">보통</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- 강점 / 개선 -->
+  <div class="section">
+    <div class="section-title">강점 & 개선 기회</div>
+    <div class="card">
+      <div class="two-col">
+        <div class="pros">
+          <h4>강점 (Strengths)</h4>
+          <ul>
+            <li>강력한 감성 브랜딩 — "엄마의 시간" 공감 소구</li>
+            <li>1,504,529 끼니 수치로 즉각적 신뢰 형성</li>
+            <li>단계별 체계적 상품 라인 (월령 맞춤 구성)</li>
+            <li>무항생제·유기농 재료 → 프리미엄 포지셔닝</li>
+            <li>REVIEW, COMMUNITY 통한 UGC 생태계 구축</li>
+            <li>AI 개인화 추천으로 D2C 기술 차별화</li>
+            <li>카카오채널 통한 재구매 고객 관리</li>
+          </ul>
+        </div>
+        <div class="cons">
+          <h4>개선 기회 (Opportunities)</h4>
+          <ul>
+            <li>알러지·아토피 아동 전용 특화 라인 수요 확인됨</li>
+            <li>타이틀/메타에 검색 키워드(이유식) 보강 필요</li>
+            <li>육아 콘텐츠 블로그로 SEO 자연 유입 강화 여지</li>
+            <li>정기구독 모델 도입으로 LTV 향상 가능</li>
+            <li>해외(재외동포·K-푸드 관심층) 글로벌 확장 여지</li>
+            <li>영양성분·식재료 원산지 상세 정보 강화 필요</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 개선 제안 -->
+  <div class="section">
+    <div class="section-title">개선 제안</div>
+    <div class="card">
+      <div class="rec-list">
+        <div class="rec-item">
+          <div class="rec-num">1</div>
+          <div class="rec-text">
+            <strong>알러지·아토피 전용 라인 출시</strong>
+            <span>실제 리뷰에서 확인된 니즈. "알러지 케어" 특화 라인 운영 시 세분화 타겟팅 및 프리미엄 가격 정책 가능.</span>
+          </div>
+        </div>
+        <div class="rec-item">
+          <div class="rec-num">2</div>
+          <div class="rec-text">
+            <strong>정기구독 서비스 도입</strong>
+            <span>이유식은 매월 단계가 바뀌는 반복 구매 상품. 월령 맞춤 정기배송 플랜으로 LTV 극대화 및 이탈 방지 가능.</span>
+          </div>
+        </div>
+        <div class="rec-item">
+          <div class="rec-num">3</div>
+          <div class="rec-text">
+            <strong>SEO 타이틀 최적화</strong>
+            <span>"이너프 - 엄마의 시간은 소중하니까" → "이너프 이유식 밀키트 | 단계별 유기농 아기 밀키트" 등 검색 키워드 보강.</span>
+          </div>
+        </div>
+        <div class="rec-item">
+          <div class="rec-num">4</div>
+          <div class="rec-text">
+            <strong>육아 콘텐츠 블로그 운영</strong>
+            <span>"이유식 시작 시기", "이유식 재료 고르는 법" 등 검색 유입 콘텐츠로 자연 트래픽 확보. 브랜드 전문성 강화 효과.</span>
+          </div>
+        </div>
+        <div class="rec-item">
+          <div class="rec-num">5</div>
+          <div class="rec-text">
+            <strong>글로벌 시장 진출</strong>
+            <span>K-푸드 관심 증가 추세. 재외동포 및 아시아권 해외 배송 서비스로 시장 확장. 영문 페이지 구성 선행 필요.</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<footer>분석일: 2026-04-01 &nbsp;|&nbsp; 대상 URL: https://enoughbox.shop &nbsp;|&nbsp; Claude Code 자동 생성 보고서</footer>
+
+<script>
+  // 단계별 가격 차트
+  new Chart(document.getElementById('priceChart'), {
+    type: 'bar',
+    data: {
+      labels: ['초기(5-6개월)', '중기(7-8개월)', '후기(9-11개월)'],
+      datasets: [
+        { label: '정가', data: [39500, 51200, 59200], backgroundColor: '#e5e5e5', borderRadius: 4 },
+        { label: '판매가', data: [29500, 41200, 49200], backgroundColor: '#1a1a1a', borderRadius: 4 }
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { position: 'bottom', labels: { font: { size: 11 } } } },
+      scales: {
+        y: { ticks: { callback: v => (v/10000).toFixed(0) + '만원', font: { size: 10 } }, grid: { color: '#f0f0f0' } },
+        x: { grid: { display: false }, ticks: { font: { size: 10 } } }
+      }
+    }
+  });
+
+  // 끼니당 단가 차트
+  new Chart(document.getElementById('unitChart'), {
+    type: 'doughnut',
+    data: {
+      labels: ['초기 (₩2,950/끼니)', '중기 (₩2,747/끼니)', '후기 (₩3,280/끼니)'],
+      datasets: [{
+        data: [2950, 2747, 3280],
+        backgroundColor: ['#1a1a1a', '#e8a87c', '#c8b89a'],
+        borderWidth: 0, hoverOffset: 8
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      cutout: '55%',
+      plugins: {
+        legend: { position: 'bottom', labels: { font: { size: 10 }, boxWidth: 12 } },
+        tooltip: { callbacks: { label: ctx => ` ${ctx.label}` } }
+      }
+    }
+  });
+</script>
+</body>
+</html>
