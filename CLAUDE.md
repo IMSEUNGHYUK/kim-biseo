@@ -60,8 +60,9 @@
 ## 🚀 배포
 
 - **GitHub:** https://github.com/IMSEUNGHYUK/kim-biseo
-- **Vercel:** Connected ✓
-- **커밋:** "첫 배포"
+- **Vercel:** https://kim-biseo-sigma.vercel.app ✓
+- **구프로젝트:** https://kim-biseo.vercel.app (archived)
+- **상태:** 라이브
 
 ## 💡 특징
 

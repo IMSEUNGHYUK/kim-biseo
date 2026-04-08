@@ -16,8 +16,9 @@
 
 ### 1️⃣ 아이콘 생성 (브라우저)
 
-브라우저에서 `generate-icons.html`을 열고 실행합니다:
+**온라인 방법:** https://kim-biseo-sigma.vercel.app/generate-icons.html
 
+**로컬 방법:** 브라우저에서 `generate-icons.html`을 열고 실행합니다:
 ```
 file:///path/to/generate-icons.html
 ```
@@ -54,13 +55,13 @@ if ('serviceWorker' in navigator) {
 ## 📱 홈 화면에 추가
 
 ### iOS (Safari)
-1. Safari에서 `kim-biseo.vercel.app` 열기
+1. Safari에서 `kim-biseo-sigma.vercel.app` 열기
 2. 하단 공유 버튼 탭
 3. "홈 화면에 추가" 선택
 4. 이름 확인 후 "추가"
 
 ### Android (Chrome)
-1. Chrome에서 `kim-biseo.vercel.app` 열기
+1. Chrome에서 `kim-biseo-sigma.vercel.app` 열기
 2. 우측 상단 ⋮ 메뉴 탭
 3. "앱 설치" 또는 "홈 화면에 추가" 선택
 4. 확인
@@ -138,7 +139,7 @@ if ('serviceWorker' in navigator) {
    - 오프라인 테스트
 
 3. **배포 확인**
-   - https://kim-biseo.vercel.app 방문
+   - https://kim-biseo-sigma.vercel.app 방문
    - 설치 가능 확인
    - Lighthouse 감사
 

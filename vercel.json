@@ -1,7 +1,12 @@
 {
+  "projectId": "kim-biseo-sigma",
+  "name": "kim-biseo-sigma",
   "buildCommand": "",
   "outputDirectory": ".",
   "devCommand": "",
+  "env": [],
+  "functions": {},
+  "regions": [],
   "rewrites": [
     { "source": "/", "destination": "/업무대시보드.html" },
     { "source": "/대시보드", "destination": "/업무대시보드.html" },
