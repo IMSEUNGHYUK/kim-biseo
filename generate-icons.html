@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>아이콘 생성기 - 김비서</title>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 20px; background: #f5f5f5; }
+    h1 { color: #1a1a2e; }
+    button { padding: 10px 20px; background: #6366f1; color: white; border: none; border-radius: 5px; cursor: pointer; }
+    button:hover { background: #4f46e5; }
+    .result { margin-top: 20px; }
+    canvas { border: 1px solid #ddd; margin: 10px 0; }
+    a { color: #6366f1; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+  <h1>🤖 김비서 아이콘 생성</h1>
+  <p>클릭하여 PNG 아이콘을 생성하고 다운로드하세요.</p>
+
+  <button onclick="generateIcon(192)">192x192 아이콘 생성</button>
+  <button onclick="generateIcon(512)">512x512 아이콘 생성</button>
+  <button onclick="generateAll()">모두 생성 (일괄 다운로드 준비)</button>
+
+  <div class="result" id="result"></div>
+
+  <script>
+    function generateIcon(size) {
+      const canvas = document.createElement('canvas');
+      canvas.width = size;
+      canvas.height = size;
+      const ctx = canvas.getContext('2d');
+
+      // 배경
+      ctx.fillStyle = '#1a1a2e';
+      ctx.beginPath();
+      ctx.roundRect(0, 0, size, size, size / 4);
+      ctx.fill();
+
+      // 상단 액센트 바
+      ctx.fillStyle = '#6366f1';
+      ctx.fillRect(0, 0, size, Math.round(size / 16));
+
+      // 로봇 아이콘 그리기
+      const scale = size / 192;
+      ctx.save();
+      ctx.translate(size / 2, size / 2);
+
+      // 헤드
+      ctx.fillStyle = '#e2e8f0';
+      ctx.strokeStyle = '#6366f1';
+      ctx.lineWidth = 2 * scale;
+      ctx.beginPath();
+      ctx.arc(0, -15 * scale, 22 * scale, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.stroke();
+
+      // 눈
+      ctx.fillStyle = '#1a1a2e';
+      ctx.beginPath();
+      ctx.arc(-8 * scale, -18 * scale, 3 * scale, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.beginPath();
+      ctx.arc(8 * scale, -18 * scale, 3 * scale, 0, Math.PI * 2);
+      ctx.fill();
+
+      // 입
+      ctx.strokeStyle = '#1a1a2e';
+      ctx.lineWidth = 2 * scale;
+      ctx.beginPath();
+      ctx.quadraticCurveTo(0, -5 * scale, 8 * scale, -10 * scale);
+      ctx.moveTo(-8 * scale, -10 * scale);
+      ctx.quadraticCurveTo(0, -5 * scale, 8 * scale, -10 * scale);
+      ctx.stroke();
+
+      // 바디
+      ctx.fillStyle = '#6366f1';
+      ctx.strokeStyle = '#e2e8f0';
+      ctx.lineWidth = 2 * scale;
+      ctx.fillRect(-18 * scale, 8 * scale, 36 * scale, 28 * scale);
+      ctx.strokeRect(-18 * scale, 8 * scale, 36 * scale, 28 * scale);
+
+      // 팔
+      ctx.fillStyle = '#38bdf8';
+      ctx.fillRect(-28 * scale, 12 * scale, 10 * scale, 20 * scale);
+      ctx.fillRect(18 * scale, 12 * scale, 10 * scale, 20 * scale);
+
+      // 배지
+      ctx.fillStyle = '#fb923c';
+      ctx.beginPath();
+      ctx.arc(18 * scale, -28 * scale, 10 * scale, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.fillStyle = '#1a1a2e';
+      ctx.font = `bold ${16 * scale}px Arial`;
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText('24', 18 * scale, -28 * scale);
+
+      ctx.restore();
+
+      // 텍스트
+      ctx.fillStyle = '#e2e8f0';
+      ctx.font = `bold ${20 * scale}px Arial`;
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'bottom';
+      ctx.fillText('김비서', size / 2, size - 10 * scale);
+
+      // 다운로드
+      const link = document.createElement('a');
+      link.href = canvas.toDataURL('image/png');
+      link.download = `icon-${size}.png`;
+      link.click();
+
+      // 미리보기 표시
+      const result = document.getElementById('result');
+      const img = document.createElement('img');
+      img.src = canvas.toDataURL('image/png');
+      img.style.width = '150px';
+      img.style.border = '1px solid #ddd';
+      img.style.borderRadius = '20px';
+      img.style.marginRight = '10px';
+
+      const p = document.createElement('p');
+      p.innerHTML = `✅ <strong>icon-${size}.png</strong> 다운로드 완료<br><em>프로젝트 루트에 저장하세요</em>`;
+
+      result.appendChild(img);
+      result.appendChild(p);
+    }
+
+    function generateAll() {
+      generateIcon(192);
+      setTimeout(() => generateIcon(512), 500);
+
+      const result = document.getElementById('result');
+      const p = document.createElement('p');
+      p.style.marginTop = '10px';
+      p.style.padding = '10px';
+      p.style.background = '#d4edda';
+      p.style.borderRadius = '5px';
+      p.style.color = '#155724';
+      p.innerHTML = '✨ <strong>모든 아이콘이 생성되었습니다!</strong><br>다운로드된 파일들을 프로젝트 루트에 저장하세요.';
+      result.appendChild(p);
+    }
+  </script>
+</body>
+</html>
